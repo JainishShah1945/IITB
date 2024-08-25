@@ -21,45 +21,55 @@ function Instance() {
     const title = course_title.current.value;
     const in_year = year.current.value;
     const in_sem = course_sem.current.value;
+    try {
+      const response = await fetch(
+        "http://127.0.0.1:8000/api/instances/",
 
-    const response = await fetch(
-      "http://127.0.0.1:8000/api/instances/",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            course_instance: title,
+            instance_year: in_year,
+            instance_sem: in_sem,
+          }),
+        }
+      );
 
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          course_instance: title,
-          instance_year: in_year,
-          instance_sem: in_sem,
-        }),
+      if (response.ok) {
+        const newdata = await response.json();
+        setData((data) => [...data, newdata]);
+        course_title.current.value = "";
+        year.current.value = "";
+        course_sem.current.value = "";
+      } else {
+        alert("Invalid Credentials");
       }
-    );
-    if (response.ok) {
-      const newdata = await response.json();
-      setData((data) => [...data, newdata]);
-      course_title.current.value = "";
-      year.current.value = "";
-      course_sem.current.value = "";
+    } catch (error) {
+      alert(error, " Unable to fetch");
     }
   };
 
   const handleonDelete = async (instanceId) => {
-    const response = await fetch(
-      `http://127.0.0.1:8000/api/instances/${instanceId}/`,
-      {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
+    try {
+      const response = await fetch(
+        `http://127.0.0.1:8000/api/instances/${instanceId}/`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (response.ok) {
+        setData((data) => data.filter((course) => course.id !== instanceId));
+      } else {
+        console.log("Something went wrong");
       }
-    );
-    if (response.ok) {
-      setData((data) => data.filter((course) => course.id !== instanceId));
-    } else {
-      console.log("Something went wrong");
+    } catch (error) {
+      alert(error);
     }
   };
   const handleonRetrive = async (e) => {
@@ -75,7 +85,7 @@ function Instance() {
           setData(response.data);
         });
     } catch (error) {
-      alert(error);
+      alert(error, " Invalid credentials");
     }
   };
 

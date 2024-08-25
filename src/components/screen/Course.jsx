@@ -18,52 +18,68 @@ function Course() {
     const title = course_title.current.value;
     const desc = course_desc.current.value;
     const code = course_code.current.value;
-    const response = await fetch("http://127.0.0.1:8000/api/courses/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        course_title: title,
-        course_description: desc,
-        course_code: code,
-      }),
-    });
-    if (response.ok) {
-      const newdata = await response.json();
-      setData((data) => [...data, newdata]);
-      course_title.current.value = "";
-      course_desc.current.value = "";
-      course_code.current.value = "";
+    try {
+      const response = await fetch("http://127.0.0.1:8000/api/courses/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          course_title: title,
+          course_description: desc,
+          course_code: code,
+        }),
+      });
+      if (response.ok) {
+        const newdata = await response.json();
+        setData((data) => [...data, newdata]);
+        course_title.current.value = "";
+        course_desc.current.value = "";
+        course_code.current.value = "";
+      } else {
+        alert("Invalid Credentials");
+      }
+    } catch (error) {
+      alert(error, " failed to fetch");
     }
   };
 
   const handleonDelete = async (courseId) => {
-    const response = await fetch(
-      `http://127.0.0.1:8000/api/courses/${courseId}/`,
-      {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
+    try {
+      const response = await fetch(
+        `http://127.0.0.1:8000/api/courses/${courseId}/`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (response.ok) {
+        setData((data) => data.filter((course) => course.id !== courseId));
+      } else {
+        console.log("Something went wrong");
       }
-    );
-    if (response.ok) {
-      setData((data) => data.filter((course) => course.id !== courseId));
-    } else {
-      console.log("Something went wrong");
+    } catch {
+      alert("Invalid action");
     }
   };
   const handleonChange = (e) => {
     setGetId(e.target.value);
   };
   const handleonRetrive = async (courseId) => {
-    axios
-      .get(`http://127.0.0.1:8000/api/courses/${courseId}/`)
-      .then((response) => {
-        console.log(response.data);
-        setData(response.data);
-      });
+    try {
+      axios
+        .get(`http://127.0.0.1:8000/api/courses/${courseId}/`)
+
+        .then((response) => {
+          console.log(response.data);
+          setData(response.data);
+        })
+        .catch((error) => alert("Invalid credentials"));
+    } catch (error) {
+      alert(error, " failed to fetch");
+    }
   };
 
   useEffect(() => {
